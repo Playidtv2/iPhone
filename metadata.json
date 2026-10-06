@@ -1,0 +1,6 @@
+{
+  "name": "IPTV Thailand - WebTV Player & Subscription",
+  "description": "IPTV WebTV Player รองรับ Xtream Codes API และ M3U Playlist พร้อมระบบสมัครสมาชิก ทีวีสด หนัง ซีรีส์ และคู่มือ TiviMate / IPTV Smarters",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
