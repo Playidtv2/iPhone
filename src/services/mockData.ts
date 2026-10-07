@@ -139,6 +139,55 @@ export const DEMO_SERIES_CATEGORIES: Category[] = [
   { category_id: 'series_west', category_name: '🇺🇸 ซีรีส์ฝรั่ง (HBO/Netflix/Disney)', count: 6 },
 ];
 
+export const DEMO_CUSTOM_SERIES_CATEGORIES: Category[] = [
+  { category_id: 'cs_exclusive', category_name: '🌟 ซีรีส์เอ็กซ์คลูซีฟ (Exclusive Series)', count: 4 },
+  { category_id: 'cs_anime', category_name: '⛩️ อนิเมะซีรีส์ พากย์ไทยคมชัด', count: 4 },
+  { category_id: 'cs_retro', category_name: '📼 ซีรีส์คลาสสิกในความทรงจำ', count: 3 },
+];
+
+export const DEMO_CUSTOM_SERIES_ITEMS: SeriesItem[] = [
+  {
+    series_id: 'cser_1',
+    name: 'Solo Leveling (ชะตากรรมนักล่าเงา) [Season 1 ครบทุกตอน]',
+    cover: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=500&auto=format&fit=crop&q=60',
+    rating: 9.3,
+    releaseDate: '2024',
+    category_id: 'cs_anime',
+    genre: 'Anime, Fantasy, Action',
+    plot: 'ฮันเตอร์แรงก์ E ที่อ่อนแอที่สุดในโลก ได้รับโอกาสครั้งสำคัญผ่านระบบดันเจียนลับที่ทำให้เขาเลเวลอัปไร้ขีดจำกัด',
+  },
+  {
+    series_id: 'cser_2',
+    name: 'สืบสันดาน (Master of the House) [Netflix Original ไทย]',
+    cover: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=500&auto=format&fit=crop&q=60',
+    rating: 8.5,
+    releaseDate: '2024',
+    category_id: 'cs_exclusive',
+    genre: 'Drama, Mystery, Thriller',
+    plot: 'การแย่งชิงมรดกเลือดของตระกูลเจ้าสัวใหญ่ เมื่อคนรับใช้กลายเป็นผู้สืบทอดบัลลังก์ธุรกิจ',
+  },
+  {
+    series_id: 'cser_3',
+    name: 'Demon Slayer: Hashira Training Arc (ดาบพิฆาตอสูร: การสั่งสอนของเสาหลัก)',
+    cover: 'https://images.unsplash.com/photo-1563089145-599997674d42?w=500&auto=format&fit=crop&q=60',
+    rating: 9.2,
+    releaseDate: '2024',
+    category_id: 'cs_anime',
+    genre: 'Anime, Action, Supernatural',
+    plot: 'ทันจิโร่และผองเพื่อนเข้าร่วมการฝึกสุดหฤโหดกับเหล่าเสาหลักเพื่อเตรียมรับมือสงครามสุดท้ายกับมุซัน',
+  },
+  {
+    series_id: 'cser_4',
+    name: 'สงครามสมรส (Never Enough) [ช่อง ONE 31]',
+    cover: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&auto=format&fit=crop&q=60',
+    rating: 8.9,
+    releaseDate: '2024',
+    category_id: 'cs_exclusive',
+    genre: 'Drama, Legal',
+    plot: 'การต่อสู้ในชั้นศาลของภรรยาหลวงเพื่อปกป้องครอบครัวและเกียรติยศ ละครกระแสแรงอันดับ 1',
+  },
+];
+
 export const TEST_HLS_URLS = [
   'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
   'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',

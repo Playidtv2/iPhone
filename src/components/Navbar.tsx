@@ -15,10 +15,11 @@ import {
   Menu,
   X,
   CreditCard,
+  Layers,
 } from 'lucide-react';
 import { UserInfo } from '../types/iptv';
 
-export type MainTabType = 'live' | 'vod' | 'series' | 'epg' | 'favorites' | 'history';
+export type MainTabType = 'live' | 'vod' | 'series' | 'custom_series' | 'epg' | 'favorites' | 'history';
 
 interface NavbarProps {
   currentTab: MainTabType;
@@ -55,6 +56,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'live', label: 'ทีวีสด', icon: Tv },
     { id: 'vod', label: 'ภาพยนตร์', icon: Film },
     { id: 'series', label: 'ซีรีส์', icon: Clapperboard },
+    { id: 'custom_series', label: 'ซีรีส์พิเศษ', icon: Layers },
     { id: 'epg', label: 'ผังรายการ EPG', icon: Calendar },
     { id: 'favorites', label: 'รายการโปรด', icon: Heart },
     { id: 'history', label: 'ประวัติ', icon: History },

@@ -36,10 +36,17 @@ export const ParentalLockModal: React.FC<ParentalLockModalProps> = ({
   };
 
   const handleResetPin = () => {
-    const newPin = prompt('ตั้งรหัสผ่าน PIN 4 หลักใหม่สำหรับหมวด 18+:');
-    if (newPin && newPin.trim().length >= 4) {
-      localStorage.setItem('iptv_adult_pin', newPin.trim());
-      alert('บันทึกรหัส PIN ใหม่เรียบร้อยแล้ว');
+    const newPin = prompt('ตั้งรหัสผ่าน PIN 4 หลักใหม่สำหรับหมวด 18+: (พิมพ์ "reset" เพื่อคืนค่าเป็น 8888)');
+    if (newPin) {
+      if (newPin.trim().toLowerCase() === 'reset') {
+        localStorage.removeItem('iptv_adult_pin');
+        alert('รีเซ็ตรหัส PIN กลับเป็นค่าเริ่มต้น (8888) เรียบร้อยแล้ว');
+      } else if (newPin.trim().length >= 4) {
+        localStorage.setItem('iptv_adult_pin', newPin.trim());
+        alert('บันทึกรหัส PIN ใหม่เรียบร้อยแล้ว');
+      } else {
+        alert('รหัส PIN ต้องมีความยาวอย่างน้อย 4 หลัก');
+      }
       setError(null);
     }
   };

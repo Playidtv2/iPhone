@@ -14,7 +14,7 @@ import {
 import { LiveStream, VodStream, SeriesItem } from '../types/iptv';
 
 interface ContentGridProps {
-  type: 'live' | 'vod' | 'series' | 'favorites' | 'history';
+  type: 'live' | 'vod' | 'series' | 'custom_series' | 'favorites' | 'history';
   liveItems?: LiveStream[];
   vodItems?: VodStream[];
   seriesItems?: SeriesItem[];
@@ -64,7 +64,7 @@ export const ContentGrid: React.FC<ContentGridProps> = ({
       ? displayLive.length
       : type === 'vod'
       ? displayVod.length
-      : type === 'series'
+      : type === 'series' || type === 'custom_series'
       ? displaySeries.length
       : displayLive.length + displayVod.length + displaySeries.length;
 
@@ -251,7 +251,7 @@ export const ContentGrid: React.FC<ContentGridProps> = ({
       )}
 
       {/* Series Grid */}
-      {(type === 'series' || (type === 'favorites' && displaySeries.length > 0)) && (
+      {(type === 'series' || type === 'custom_series' || (type === 'favorites' && displaySeries.length > 0)) && (
         <div className="space-y-3">
           {type === 'favorites' && <h3 className="text-sm font-semibold text-amber-400">🍿 ซีรีส์ที่ชอบ</h3>}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">

@@ -42,7 +42,22 @@ export class XtreamClient {
   }
 
   private async fetchWithProxy(url: string): Promise<any> {
-    // Attempt 1: Direct fetch with 8s timeout
+    const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+
+    // If on HTTPS and target is HTTP, call proxy first to avoid browser Mixed Content block!
+    if (isHttps && url.startsWith('http://')) {
+      try {
+        const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+        const res = await fetch(proxyUrl);
+        if (res.ok) {
+          return await res.json();
+        }
+      } catch {
+        // Fallback to direct attempt below
+      }
+    }
+
+    // Attempt direct fetch with 8s timeout
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
@@ -57,10 +72,10 @@ export class XtreamClient {
         return await res.json();
       }
     } catch {
-      // Direct fetch failed, fallback to local Vite proxy
+      // Direct fetch failed
     }
 
-    // Attempt 2: Through Vite backend proxy route
+    // Fallback proxy attempt
     try {
       const proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
       const res = await fetch(proxyUrl);
@@ -281,7 +296,11 @@ export class XtreamClient {
       return TEST_HLS_URLS[hash % TEST_HLS_URLS.length];
     }
     const enc = encodeURIComponent;
-    return `${this.serverUrl}/live/${enc(this.username)}/${enc(this.password)}/${streamId}.m3u8`;
+    const direct = `${this.serverUrl}/live/${enc(this.username)}/${enc(this.password)}/${streamId}.m3u8`;
+    if (typeof window !== 'undefined' && window.location.protocol === 'https:' && direct.startsWith('http://')) {
+      return `/api/proxy?url=${encodeURIComponent(direct)}`;
+    }
+    return direct;
   }
 
   getVodStreamUrl(streamId: string | number, extension: string = 'mp4'): string {
@@ -289,7 +308,11 @@ export class XtreamClient {
       return TEST_HLS_URLS[0];
     }
     const enc = encodeURIComponent;
-    return `${this.serverUrl}/movie/${enc(this.username)}/${enc(this.password)}/${streamId}.${extension}`;
+    const direct = `${this.serverUrl}/movie/${enc(this.username)}/${enc(this.password)}/${streamId}.${extension}`;
+    if (typeof window !== 'undefined' && window.location.protocol === 'https:' && direct.startsWith('http://')) {
+      return `/api/proxy?url=${encodeURIComponent(direct)}`;
+    }
+    return direct;
   }
 
   getSeriesStreamUrl(episodeId: string | number, extension: string = 'mp4'): string {
@@ -297,7 +320,11 @@ export class XtreamClient {
       return TEST_HLS_URLS[1];
     }
     const enc = encodeURIComponent;
-    return `${this.serverUrl}/series/${enc(this.username)}/${enc(this.password)}/${episodeId}.${extension}`;
+    const direct = `${this.serverUrl}/series/${enc(this.username)}/${enc(this.password)}/${episodeId}.${extension}`;
+    if (typeof window !== 'undefined' && window.location.protocol === 'https:' && direct.startsWith('http://')) {
+      return `/api/proxy?url=${encodeURIComponent(direct)}`;
+    }
+    return direct;
   }
 }
 

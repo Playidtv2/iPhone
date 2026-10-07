@@ -282,16 +282,44 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
               {/* Bank & Line Details Box */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Bank Transfer info */}
+                {/* Bank Transfer & PromptPay QR info */}
                 <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-6 space-y-4">
-                  <div className="flex items-center gap-2 text-amber-400 text-sm font-bold">
-                    <ShieldCheck className="w-5 h-5 text-amber-400" />
-                    <span>ช่องทางชำระค่าบริการ (Bank Transfer)</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-amber-400 text-sm font-bold">
+                      <ShieldCheck className="w-5 h-5 text-amber-400" />
+                      <span>ช่องทางชำระเงิน (ธนาคาร & QR พร้อมเพย์)</span>
+                    </div>
+                    <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-bold">
+                      ยอดชำระ {selectedPlan.price}.-
+                    </span>
                   </div>
 
-                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3.5">
+                  <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 md:p-5 space-y-3.5">
+                    {/* PromptPay QR Section */}
+                    <div className="flex flex-col sm:flex-row items-center gap-4 p-3 bg-slate-950 rounded-xl border border-slate-800">
+                      <div className="bg-white p-2 rounded-xl shrink-0 shadow-md flex flex-col items-center">
+                        <img
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=00020101021129370016A000000677010111011300668900000005802TH5303764540${selectedPlan.price.toFixed(2).length < 10 ? '0' + selectedPlan.price.toFixed(2).length : selectedPlan.price.toFixed(2).length}${selectedPlan.price.toFixed(2)}6304`}
+                          alt="PromptPay QR Code"
+                          className="w-28 h-28 object-contain"
+                          onError={(e) => {
+                            // Fallback clean QR graphic if offline
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                        <span className="text-[10px] font-bold text-slate-800 mt-1">PromptPay QR</span>
+                      </div>
+                      <div className="space-y-1 text-center sm:text-left">
+                        <div className="text-xs font-bold text-amber-400">สแกนจ่ายผ่านแอปธนาคารได้ทุกธนาคาร</div>
+                        <div className="text-sm font-extrabold text-white">ยอดเงิน: {selectedPlan.price} บาท</div>
+                        <p className="text-[11px] text-slate-400">
+                          เปิดแอปธนาคารของคุณ สแกน QR Code นี้เพื่อชำระเงินได้ทันทีโดยไม่ต้องพิมพ์ยอดเงิน
+                        </p>
+                      </div>
+                    </div>
+
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-slate-400">ธนาคาร:</span>
+                      <span className="text-xs text-slate-400">หรือโอนผ่านธนาคาร:</span>
                       <strong className="text-sm text-white font-semibold flex items-center gap-1.5">
                         <span className="w-3 h-3 rounded-full bg-blue-600 inline-block" />
                         ธนาคารกรุงเทพ (Bangkok Bank)
@@ -318,13 +346,6 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                       <span className="text-xs text-slate-400">ชื่อบัญชี:</span>
                       <strong className="text-sm text-white font-semibold">
                         มุสลิม ยาการียา
-                      </strong>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
-                      <span className="text-xs text-slate-400">ยอดเงินที่ต้องโอน:</span>
-                      <strong className="text-base text-amber-400 font-bold">
-                        {selectedPlan.price} บาท
                       </strong>
                     </div>
                   </div>
@@ -359,6 +380,19 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                         {copiedLine ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                         {copiedLine ? 'คัดลอกแล้ว' : 'คัดลอก ID'}
                       </button>
+                    </div>
+
+                    {/* Upload Slip Box */}
+                    <div className="p-3 bg-slate-900/60 border border-dashed border-slate-700 hover:border-emerald-500/60 rounded-xl transition-colors">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <div className="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+                          <CheckCircle2 className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 truncate">
+                          <div className="text-xs font-semibold text-white">เตรียมสลิปเพื่อส่งให้แอดมิน</div>
+                          <div className="text-[11px] text-slate-400">แตะปุ่มด้านล่างเพื่อเปิด LINE และส่งรูปสลิป</div>
+                        </div>
+                      </label>
                     </div>
                   </div>
 

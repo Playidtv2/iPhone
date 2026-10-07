@@ -22,13 +22,17 @@ import { TutorialModal } from './components/TutorialModal';
 import { ParentalLockModal } from './components/ParentalLockModal';
 import { LoginModal } from './components/LoginModal';
 import { EpgGuideView } from './components/EpgGuideView';
+import { HeroCarousel, HeroItem } from './components/HeroCarousel';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import {
   DEMO_LIVE_CATEGORIES,
   DEMO_VOD_CATEGORIES,
   DEMO_SERIES_CATEGORIES,
+  DEMO_CUSTOM_SERIES_CATEGORIES,
   DEMO_LIVE_STREAMS,
   DEMO_VOD_STREAMS,
   DEMO_SERIES_ITEMS,
+  DEMO_CUSTOM_SERIES_ITEMS,
 } from './services/mockData';
 import { Play, Sparkles, Tv, HelpCircle, Film, ShieldAlert, RotateCcw } from 'lucide-react';
 
@@ -45,10 +49,12 @@ export default function App() {
   const [liveCategories, setLiveCategories] = useState<Category[]>(DEMO_LIVE_CATEGORIES);
   const [vodCategories, setVodCategories] = useState<Category[]>(DEMO_VOD_CATEGORIES);
   const [seriesCategories, setSeriesCategories] = useState<Category[]>(DEMO_SERIES_CATEGORIES);
+  const [customSeriesCategories, setCustomSeriesCategories] = useState<Category[]>(DEMO_CUSTOM_SERIES_CATEGORIES);
 
   const [liveStreams, setLiveStreams] = useState<LiveStream[]>(DEMO_LIVE_STREAMS);
   const [vodStreams, setVodStreams] = useState<VodStream[]>(DEMO_VOD_STREAMS);
   const [seriesStreams, setSeriesStreams] = useState<SeriesItem[]>(DEMO_SERIES_ITEMS);
+  const [customSeriesStreams, setCustomSeriesStreams] = useState<SeriesItem[]>(DEMO_CUSTOM_SERIES_ITEMS);
 
   // Favorites & History (persisted)
   const [favoritesSet, setFavoritesSet] = useState<Set<string>>(() => {
@@ -368,14 +374,16 @@ export default function App() {
     if (currentTab === 'live') return liveCategories;
     if (currentTab === 'vod') return vodCategories;
     if (currentTab === 'series') return seriesCategories;
+    if (currentTab === 'custom_series') return customSeriesCategories;
     return [];
-  }, [currentTab, liveCategories, vodCategories, seriesCategories]);
+  }, [currentTab, liveCategories, vodCategories, seriesCategories, customSeriesCategories]);
 
   const currentCategoryName = useMemo(() => {
     if (selectedCategoryId === null) {
       if (currentTab === 'live') return '📺 ช่องทีวีสดทั้งหมด';
       if (currentTab === 'vod') return '🎬 ภาพยนตร์ VOD ทั้งหมด';
       if (currentTab === 'series') return '🍿 ซีรีส์ทั้งหมด';
+      if (currentTab === 'custom_series') return '🌟 ซีรีส์พิเศษทั้งหมด';
       if (currentTab === 'favorites') return '❤️ รายการโปรดของคุณ';
       if (currentTab === 'history') return '🕒 ประวัติการรับชมล่าสุด';
     }
@@ -399,6 +407,11 @@ export default function App() {
     return seriesStreams.filter((s) => s.category_id === selectedCategoryId);
   }, [seriesStreams, selectedCategoryId]);
 
+  const filteredCustomSeries = useMemo(() => {
+    if (!selectedCategoryId) return customSeriesStreams;
+    return customSeriesStreams.filter((s) => s.category_id === selectedCategoryId);
+  }, [customSeriesStreams, selectedCategoryId]);
+
   // Favorite items lists
   const favoriteLive = useMemo(() => {
     return liveStreams.filter((s) => favoritesSet.has(`live_${s.stream_id}`));
@@ -411,6 +424,27 @@ export default function App() {
   const favoriteSeries = useMemo(() => {
     return seriesStreams.filter((s) => favoritesSet.has(`series_${s.series_id}`));
   }, [seriesStreams, favoritesSet]);
+
+  // Handlers for HeroCarousel
+  const handlePlayHero = (hero: HeroItem) => {
+    if (hero.type === 'live') {
+      handlePlayLive(hero.streamItem as LiveStream);
+    } else if (hero.type === 'vod') {
+      handlePlayVod(hero.streamItem as VodStream);
+    } else {
+      setDetailModal({ open: true, media: hero.streamItem as SeriesItem, type: 'series' });
+    }
+  };
+
+  const handleOpenDetailHero = (hero: HeroItem) => {
+    if (hero.type === 'vod') {
+      setDetailModal({ open: true, media: hero.streamItem as VodStream, type: 'vod' });
+    } else if (hero.type === 'series' || hero.type === 'custom_series') {
+      setDetailModal({ open: true, media: hero.streamItem as SeriesItem, type: 'series' });
+    } else {
+      handlePlayLive(hero.streamItem as LiveStream);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
@@ -431,8 +465,8 @@ export default function App() {
 
       {/* Main Container */}
       <div className="flex-1 flex flex-col lg:flex-row max-w-[1920px] w-full mx-auto">
-        {/* Category Sidebar (only for Live, VOD, and Series tabs) */}
-        {(currentTab === 'live' || currentTab === 'vod' || currentTab === 'series') && (
+        {/* Category Sidebar (only for Live, VOD, Series, and Custom Series tabs) */}
+        {(currentTab === 'live' || currentTab === 'vod' || currentTab === 'series' || currentTab === 'custom_series') && (
           <CategorySidebar
             categories={activeCategories}
             selectedCategoryId={selectedCategoryId}
@@ -443,52 +477,21 @@ export default function App() {
                 ? liveStreams.length
                 : currentTab === 'vod'
                 ? vodStreams.length
-                : seriesStreams.length
+                : currentTab === 'series'
+                ? seriesStreams.length
+                : customSeriesStreams.length
             }
           />
         )}
 
         {/* Content Area */}
-        <main className="flex-1 flex flex-col min-w-0">
-          {/* Hero Banner CTA */}
-          <div className="p-4 md:px-6 md:pt-6">
-            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 shadow-2xl p-6 md:p-8 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div className="space-y-2 max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/25 backdrop-blur text-amber-200 text-xs font-semibold uppercase tracking-wider">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  ยินดีต้อนรับสู่ IPTV ประเทศไทย
-                </div>
-                <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight">
-                  ทีวีสด ฟุตบอลพรีเมียร์ลีก หนัง & ซีรีส์ 4K ครบทุกช่อง
-                </h1>
-                <p className="text-xs md:text-sm text-amber-100 leading-relaxed">
-                  เชื่อมต่อเซิร์ฟเวอร์ <strong className="font-mono text-white">http://103.114.203.129:8080</strong> คมชัดระดับ Ultra HD
-                  รองรับ TiviMate, IPTV Smarters และ Web Player พร้อมดูได้ทุกอุปกรณ์ตลอด 24 ชม.
-                  <span className="inline-block ml-2 px-2 py-0.5 rounded bg-emerald-950/70 text-emerald-300 border border-emerald-500/40 font-mono text-[11px]">
-                    LINE: mGZ04jWToY
-                  </span>
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3 shrink-0">
-                <button
-                  onClick={() => setIsSubscriptionOpen(true)}
-                  className="px-5 py-3 rounded-xl bg-slate-950 text-white hover:bg-slate-900 font-bold text-xs md:text-sm flex items-center gap-2 shadow-xl transition-all"
-                >
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  <span>สมัครสมาชิก (เริ่มเพียง 129.-)</span>
-                </button>
-
-                <button
-                  onClick={() => setIsTutorialOpen(true)}
-                  className="px-4 py-3 rounded-xl bg-black/20 hover:bg-black/30 text-white font-medium text-xs md:text-sm flex items-center gap-1.5 backdrop-blur transition-colors"
-                >
-                  <HelpCircle className="w-4 h-4" />
-                  <span>คู่มือ TiviMate</span>
-                </button>
-              </div>
+        <main className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-0">
+          {/* Hero Carousel (featured 15 items with badges) */}
+          {(currentTab === 'live' || currentTab === 'vod' || currentTab === 'series' || currentTab === 'custom_series') && (
+            <div className="p-4 md:px-6 md:pt-6">
+              <HeroCarousel onPlay={handlePlayHero} onOpenDetail={handleOpenDetailHero} />
             </div>
-          </div>
+          )}
 
           {/* Views */}
           {currentTab === 'live' && (
@@ -522,6 +525,20 @@ export default function App() {
             <ContentGrid
               type="series"
               seriesItems={filteredSeries}
+              categoryTitle={currentCategoryName}
+              favoritesSet={favoritesSet}
+              onToggleFavorite={handleToggleFavorite}
+              onSelectLive={handlePlayLive}
+              onSelectVod={handlePlayVod}
+              onSelectSeries={(s) => setDetailModal({ open: true, media: s, type: 'series' })}
+              onOpenDetail={(media, type) => setDetailModal({ open: true, media, type })}
+            />
+          )}
+
+          {currentTab === 'custom_series' && (
+            <ContentGrid
+              type="custom_series"
+              seriesItems={filteredCustomSeries}
               categoryTitle={currentCategoryName}
               favoritesSet={favoritesSet}
               onToggleFavorite={handleToggleFavorite}
@@ -716,6 +733,16 @@ export default function App() {
           setIsLoginModalOpen(false);
           setIsSubscriptionOpen(true);
         }}
+      />
+
+      {/* Mobile Bottom Navigation Bar */}
+      <MobileBottomNav
+        currentTab={currentTab}
+        onChangeTab={(tab) => {
+          setCurrentTab(tab);
+          setSelectedCategoryId(null);
+        }}
+        onOpenSubscription={() => setIsSubscriptionOpen(true)}
       />
     </div>
   );
