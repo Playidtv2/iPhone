@@ -30,6 +30,7 @@ interface NavbarProps {
   onOpenAdultModal: () => void;
   isAdultUnlocked: boolean;
   onLogout: () => void;
+  onOpenLogin?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -41,6 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAdultModal,
   isAdultUnlocked,
   onLogout,
+  onOpenLogin,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
@@ -143,17 +145,22 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>สมัครสมาชิก</span>
             </button>
 
-            {/* User chip */}
-            {userInfo && (
+            {/* User chip or Login button */}
+            {userInfo ? (
               <div className="flex items-center gap-2 pl-2 border-l border-slate-800 text-xs">
-                <div className="text-right">
+                <button
+                  type="button"
+                  onClick={onOpenLogin}
+                  className="text-right hover:opacity-80 transition-opacity"
+                  title="คลิกเพื่อสลับบัญชี หรือตั้งค่าการเชื่อมต่อ Xtream Codes"
+                >
                   <div className="text-white font-medium truncate max-w-[110px]">
                     {userInfo.username}
                   </div>
                   <div className="text-[10px] text-amber-400">
                     Exp: {formatExpDate(userInfo.exp_date)}
                   </div>
-                </div>
+                </button>
 
                 <button
                   onClick={onLogout}
@@ -163,6 +170,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
+            ) : (
+              <button
+                onClick={onOpenLogin}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-sm"
+              >
+                <UserCheck className="w-3.5 h-3.5" />
+                <span>เข้าสู่ระบบ</span>
+              </button>
             )}
           </div>
 

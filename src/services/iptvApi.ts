@@ -193,11 +193,13 @@ export class XtreamClient {
       return DEMO_VOD_STREAMS.filter((s) => s.category_id === categoryId);
     }
     try {
-      const action = categoryId && categoryId !== 'all' 
-        ? `action=get_vod_streams&category_id=${categoryId}`
-        : 'action=get_vod_streams';
-      const data = await this.fetchWithProxy(this.buildApiUrl(action));
-      if (Array.isArray(data) && data.length > 0) return data;
+      // Use specific category (or default to recent category 28 "หนัง-ล่าสุด") for instant speed
+      const targetCat = categoryId && categoryId !== 'all' ? categoryId : '28';
+      let data = await this.fetchWithProxy(this.buildApiUrl(`action=get_vod_streams&category_id=${targetCat}`));
+      if (!Array.isArray(data) || data.length === 0) {
+        data = await this.fetchWithProxy(this.buildApiUrl(`action=get_movie&category_id=${targetCat}`));
+      }
+      if (Array.isArray(data) && data.length > 0) return data.slice(0, 120);
       return DEMO_VOD_STREAMS;
     } catch {
       return DEMO_VOD_STREAMS;
@@ -210,11 +212,9 @@ export class XtreamClient {
       return DEMO_SERIES_ITEMS.filter((s) => s.category_id === categoryId);
     }
     try {
-      const action = categoryId && categoryId !== 'all' 
-        ? `action=get_series&category_id=${categoryId}`
-        : 'action=get_series';
-      const data = await this.fetchWithProxy(this.buildApiUrl(action));
-      if (Array.isArray(data) && data.length > 0) return data;
+      const targetCat = categoryId && categoryId !== 'all' ? categoryId : '87';
+      const data = await this.fetchWithProxy(this.buildApiUrl(`action=get_series&category_id=${targetCat}`));
+      if (Array.isArray(data) && data.length > 0) return data.slice(0, 120);
       return DEMO_SERIES_ITEMS;
     } catch {
       return DEMO_SERIES_ITEMS;

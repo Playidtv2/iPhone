@@ -13,6 +13,8 @@ import {
   CheckCircle,
   HelpCircle,
   Upload,
+  CreditCard,
+  Info,
 } from 'lucide-react';
 import { parseM3uPlaylist } from '../services/iptvApi';
 import { Category, LiveStream } from '../types/iptv';
@@ -34,11 +36,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 }) => {
   const [mode, setMode] = useState<'xtream' | 'm3u'>('xtream');
 
-  // Xtream Fields
+  // Xtream Fields with provided server and credentials
   const [serverUrl, setServerUrl] = useState('http://103.114.203.129:8080');
-  const [anyname, setAnyname] = useState('IPTV Thailand');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [anyname, setAnyname] = useState('PlayID IPTV Thailand');
+  const [username, setUsername] = useState('playidtv2535');
+  const [password, setPassword] = useState('12345');
   const [rememberMe, setRememberMe] = useState(true);
 
   // M3U Fields
@@ -50,7 +52,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Load saved credentials from localStorage
+  // Load saved credentials from localStorage or use default playidtv2535
   useEffect(() => {
     try {
       const saved = localStorage.getItem('iptv_saved_login');
@@ -60,6 +62,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         if (parsed.username) setUsername(parsed.username);
         if (parsed.password) setPassword(parsed.password);
         if (parsed.anyname) setAnyname(parsed.anyname);
+      } else {
+        setServerUrl('http://103.114.203.129:8080');
+        setUsername('playidtv2535');
+        setPassword('12345');
+        setAnyname('PlayID IPTV Thailand');
       }
     } catch {}
   }, []);
@@ -69,7 +76,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   const handleXtreamSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!username.trim() || !password.trim()) {
-      setErrorMessage('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน');
+      setErrorMessage('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน (หรือใช้ไอดี playidtv2535 / 12345)');
       return;
     }
 
@@ -96,17 +103,45 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     }
   };
 
-  const handleDemoLogin = async () => {
-    setUsername('demo_thai');
-    setPassword('demo1234');
+  const handleDefaultAccountLogin = async () => {
+    const sUrl = 'http://103.114.203.129:8080';
+    const uName = 'playidtv2535';
+    const pWord = '12345';
+    const aName = 'PlayID IPTV Thailand';
+
+    setServerUrl(sUrl);
+    setUsername(uName);
+    setPassword(pWord);
+    setAnyname(aName);
+
     setIsLoading(true);
     setErrorMessage(null);
-    setStatusMessage('กำลังโหลดคลังรายการตัวอย่าง IPTV Thailand (Demo Line)...');
+    setStatusMessage('กำลังเข้าสู่ระบบด้วยไอดี playidtv2535 (http://103.114.203.129:8080)...');
+
+    localStorage.setItem(
+      'iptv_saved_login',
+      JSON.stringify({ serverUrl: sUrl, username: uName, password: pWord, anyname: aName })
+    );
 
     try {
-      await onLoginXtream(serverUrl, 'demo_thai', 'demo1234', 'IPTV Thailand Demo');
-    } catch {
+      await onLoginXtream(sUrl, uName, pWord, aName);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ');
       setIsLoading(false);
+      setStatusMessage(null);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    setStatusMessage('กำลังเชื่อมต่อช่องทดลองรับชมฟรี (Demo Line)...');
+    try {
+      await onLoginXtream('http://103.114.203.129:8080', 'demo_thai', 'demo1234', 'IPTV Demo Thai');
+    } catch (err: any) {
+      setErrorMessage(err.message || 'เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ');
+      setIsLoading(false);
+      setStatusMessage(null);
     }
   };
 
@@ -229,6 +264,45 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               <span>{statusMessage}</span>
             </div>
           )}
+
+          {/* Guide Card: เข้าสู่ระบบ ต้องสมัครสมาชิกก่อนหรือต้องมีไอดี */}
+          <div className="p-3.5 bg-slate-950/80 border border-amber-500/30 rounded-2xl space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-amber-400 font-semibold text-xs flex items-center gap-1.5">
+                <Info className="w-4 h-4 text-amber-400 shrink-0" />
+                เข้าสู่ระบบ: ต้องสมัครสมาชิกก่อน หรือมีไอดีเข้าได้เลย?
+              </span>
+            </div>
+            <div className="text-[11px] text-slate-300 space-y-1.5 leading-relaxed">
+              <div className="flex items-start gap-1.5">
+                <span className="text-emerald-400 font-bold shrink-0">✓ มีไอดีแล้ว:</span>
+                <span>สามารถใส่ Username & Password หรือกดปุ่ม <strong>"⚡ ล็อกอินด้วยไอดี playidtv2535"</strong> ด้านล่างนี้เพื่อเชื่อมต่อเซิร์ฟเวอร์ได้ทันที</span>
+              </div>
+              <div className="flex items-start gap-1.5">
+                <span className="text-amber-400 font-bold shrink-0">✦ ยังไม่มีไอดี:</span>
+                <span>สามารถกดสมัครสมาชิกเพื่อรับ Username / Password ส่วนตัวผ่าน WhatsApp หรือ อีเมล (แพ็กเกจ 30 วัน 129.- ไปจนถึง 1 ปี VIP 799.-)</span>
+              </div>
+            </div>
+            <div className="pt-1 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={handleDefaultAccountLogin}
+                disabled={isLoading}
+                className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>⚡ ล็อกอินด้วยไอดี playidtv2535 (1-คลิก)</span>
+              </button>
+              <button
+                type="button"
+                onClick={onOpenSubscription}
+                className="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all"
+              >
+                <CreditCard className="w-3.5 h-3.5 text-blue-400" />
+                <span>สมัครสมาชิกใหม่ (ดูแพ็กเกจ)</span>
+              </button>
+            </div>
+          </div>
 
           {mode === 'xtream' ? (
             <form onSubmit={handleXtreamSubmit} className="space-y-4">

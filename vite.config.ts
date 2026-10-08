@@ -33,6 +33,29 @@ const xtreamProxyPlugin = (): Plugin => ({
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', '*');
 
+        const contentType = fetchResponse.headers.get('content-type') || '';
+        const isM3u8 = targetUrl.includes('.m3u8') || contentType.includes('mpegurl');
+
+        if (isM3u8 && fetchResponse.ok) {
+          const text = await fetchResponse.text();
+          const baseUrl = targetUrl.substring(0, targetUrl.lastIndexOf('/') + 1);
+          const rewritten = text
+            .split('\n')
+            .map((line) => {
+              const trimmed = line.trim();
+              if (!trimmed || trimmed.startsWith('#')) return line;
+              const fullUrl = trimmed.startsWith('http')
+                ? trimmed
+                : new URL(trimmed, baseUrl).toString();
+              return `/api/proxy?url=${encodeURIComponent(fullUrl)}`;
+            })
+            .join('\n');
+
+          res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
+          res.end(rewritten);
+          return;
+        }
+
         const arrayBuffer = await fetchResponse.arrayBuffer();
         res.end(Buffer.from(arrayBuffer));
       } catch (err: any) {

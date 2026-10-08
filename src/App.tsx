@@ -461,6 +461,7 @@ export default function App() {
         onOpenAdultModal={() => setIsAdultModalOpen(true)}
         isAdultUnlocked={isAdultUnlocked}
         onLogout={handleLogout}
+        onOpenLogin={() => setIsLoginModalOpen(true)}
       />
 
       {/* Main Container */}
